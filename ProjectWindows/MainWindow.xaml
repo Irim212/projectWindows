@@ -1,0 +1,33 @@
+﻿<Window x:Class="ProjectWindows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ProjectWindows"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="293.364" Width="771.818">
+    <Grid Margin="0,0,-49,-10.333">
+        <Separator HorizontalAlignment="Left" Height="100" Margin="9,10,0,0" VerticalAlignment="Top" Width="353"/>
+        <ComboBox x:Name="comboBox" HorizontalAlignment="Left" Margin="60,20,0,0" VerticalAlignment="Top" Width="180"/>
+        <Label Content="Port" HorizontalAlignment="Left" Margin="10,18,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="buttonConnect" Content="Connect" HorizontalAlignment="Left" Margin="278,22,0,0" VerticalAlignment="Top" Width="75" Click="buttonConnectClick"/>
+        <Label Content="Functions" HorizontalAlignment="Left" Margin="10,71,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="buttonReset" Content="Reset" HorizontalAlignment="Left" Margin="278,110,0,0" VerticalAlignment="Top" Width="75" Click="buttonResetClick"/>
+        <TextBox HorizontalAlignment="Left" Height="181" Margin="385,29,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="169"/>
+        <TextBox x:Name="reciveTextBox" HorizontalAlignment="Left" Height="181" Margin="572,29,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="169" IsReadOnlyCaretVisible="True"/>
+        <Label Content="Send" HorizontalAlignment="Left" Margin="385,2,0,0" VerticalAlignment="Top" Width="73"/>
+        <Label Content="Recive" HorizontalAlignment="Left" Margin="572,4,0,0" VerticalAlignment="Top"/>
+        <Separator HorizontalAlignment="Left" Height="100" Margin="258,73,0,0" VerticalAlignment="Top" Width="236" RenderTransformOrigin="0.5,0.5">
+            <Separator.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="90"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Separator.RenderTransform>
+        </Separator>
+        <Button Content="Send" HorizontalAlignment="Left" Margin="385,224,0,0" VerticalAlignment="Top" Width="75"/>
+
+    </Grid>
+</Window>
