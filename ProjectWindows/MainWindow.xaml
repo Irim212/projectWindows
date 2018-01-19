@@ -13,8 +13,8 @@
         <Button x:Name="buttonConnect" Content="Connect" HorizontalAlignment="Left" Margin="278,22,0,0" VerticalAlignment="Top" Width="75" Click="buttonConnectClick"/>
         <Label Content="Functions" HorizontalAlignment="Left" Margin="10,71,0,0" VerticalAlignment="Top"/>
         <Button x:Name="buttonReset" Content="Reset" HorizontalAlignment="Left" Margin="278,110,0,0" VerticalAlignment="Top" Width="75" Click="buttonResetClick"/>
-        <TextBox HorizontalAlignment="Left" Height="181" Margin="385,29,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="169"/>
-        <TextBox x:Name="reciveTextBox" HorizontalAlignment="Left" Height="181" Margin="572,29,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="169" IsReadOnlyCaretVisible="True"/>
+        <TextBox x:Name="sendTextBox" HorizontalAlignment="Left" Height="212" Margin="385,29,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="169"/>
+        <TextBox x:Name="reciveTextBox" HorizontalAlignment="Left" Height="212" Margin="572,29,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="169" IsReadOnlyCaretVisible="True"/>
         <Label Content="Send" HorizontalAlignment="Left" Margin="385,2,0,0" VerticalAlignment="Top" Width="73"/>
         <Label Content="Recive" HorizontalAlignment="Left" Margin="572,4,0,0" VerticalAlignment="Top"/>
         <Separator HorizontalAlignment="Left" Height="100" Margin="258,73,0,0" VerticalAlignment="Top" Width="236" RenderTransformOrigin="0.5,0.5">
@@ -27,7 +27,9 @@
                 </TransformGroup>
             </Separator.RenderTransform>
         </Separator>
-        <Button Content="Send" HorizontalAlignment="Left" Margin="385,224,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="layerButton" HorizontalAlignment="Left" Margin="278,149,0,0" VerticalAlignment="Top" Width="75">
+            <Button Content="PHY / DL" Width="75" Click="layerButtonClick"/>
+        </Button>
 
     </Grid>
 </Window>

@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO.Ports;
 using System.Threading;
+using System.Collections.Concurrent;
 
 namespace ProjectWindows
 {
@@ -28,8 +29,8 @@ namespace ProjectWindows
         SerialPort port;
         String[] test = { };
         String[] ports = { };
-        List<int> byteList = new List<int>();
-
+        ConcurrentQueue<byte> getByteQueue = new ConcurrentQueue<byte>();
+        ConcurrentQueue<byte[]> sendByteQueue = new ConcurrentQueue<byte[]>(); 
 
         public MainWindow()
         {
@@ -58,8 +59,6 @@ namespace ProjectWindows
                         test = (string[])ports.Clone();
                     }
                 }
-              
-
 
                 Thread.Sleep(1000);
             }
@@ -67,47 +66,158 @@ namespace ProjectWindows
 
         private void buttonResetClick(object sender, RoutedEventArgs e)
         {
+            port.RtsEnable = true;
+
+            sendByteQueue.Enqueue(new byte[] { 0x02, 0x00, 0x3C, 0x3C, 0x00 });
 
         }
 
         private void buttonConnectClick(object sender, RoutedEventArgs e)
         {
 
-                port = new SerialPort(comboBox.Text, 9600, Parity.None, 8, StopBits.One);
-                Thread readFromPortThread = new Thread(readFromComPort);
-                readFromPortThread.Start();
+            port = new SerialPort(comboBox.Text, 9600, Parity.None, 8, StopBits.One);
+            Thread addByteToQueueThread = new Thread(addByteToQueue);
+            addByteToQueueThread.Start();
+            Thread checkFrameThread = new Thread(checkFrame);
+            checkFrameThread.Start();
 
         }
 
-        private void readFromComPort()
+        private void addByteToQueue()
         {
             port.Open();
             while (true)
             {
-
                 if (port.BytesToRead > 0)
                 {
-                    
-                    byteList.Add(port.ReadByte());
-                    foreach (int element1 in byteList)
-                    {
-                        Console.WriteLine(element1);
-                    }
-
+                    getByteQueue.Enqueue((byte)port.ReadByte());
                 }
                 
-
-                foreach(int element1 in byteList)
-                {
-                    Console.WriteLine(element1);
-                }
             }
             port.Close();
         }
 
-        private void buttonRefreshClick(object sender, RoutedEventArgs e)
+        private void checkFrame()
         {
+            byte bajt;
+            int frameStatus = 0;
+            int frameDataLenght = 0;
+            int commandCode = 0;
+            List<int> byteList = new List<int>();
+            List<string> frameList = new List<string>();
+            int sumControll = 0;
+            int a = 0;
+            int checkSumControll = 0;
 
+            while (true)
+            {
+
+                if (getByteQueue.TryDequeue(out bajt))
+                {
+
+                    switch (frameStatus)
+                    {
+                        case 0:
+                            if (bajt == 0x02 || bajt == 0x03)
+                            {
+                                frameList.Add(bajt.ToString("X2"));
+                                frameStatus++;
+                            }
+                            else if (bajt == 0x3f)
+                            {
+                                frameList.Add(bajt.ToString("X2"));
+                                byte[] sendByteQueue1;
+
+                                if(sendByteQueue.TryDequeue(out sendByteQueue1))
+                                {
+                                    port.Write(sendByteQueue1, 0, sendByteQueue.Count);
+                                    port.RtsEnable = false;
+                                }
+                            }
+                            break;
+
+                        case 1:
+                            frameDataLenght = bajt;
+                            frameList.Add(bajt.ToString("X2"));
+                            frameStatus++;
+                            checkSumControll += bajt;
+                            break;
+
+                        case 2:
+                            commandCode = bajt;
+                            frameList.Add(bajt.ToString("X2"));
+                            frameStatus++;
+                            checkSumControll += bajt;
+                            break;
+
+                        case 3:
+                            checkSumControll += bajt;
+                            frameList.Add(bajt.ToString("X2"));
+                            byteList.Add(bajt);
+                            if (byteList.Count == frameDataLenght)
+                            {
+                                frameStatus++;
+                            }
+
+                            break;
+
+                        case 4:
+                            if (a == 0)
+                            {
+                                sumControll |= (bajt << 8);
+                                frameList.Add(bajt.ToString("X2"));
+                                a++;
+                            }
+                            else if (a == 1)
+                            {
+                                sumControll |= bajt;
+                                a = 0;
+                                frameList.Add(bajt.ToString("X2"));
+
+                                if (checkSumControll == sumControll)
+                                {
+                                    Console.WriteLine("ZGADZA SIĘ SUMA KONTROLNA");
+                                    port.Write(new byte[] { 0x06 }, 0, 1);
+                                    reciveTextBox.Dispatcher.Invoke(() => reciveTextBox.Text = String.Join(" ", frameList));
+                                    reciveTextBox.Dispatcher.Invoke(() => reciveTextBox.AppendText(Environment.NewLine));
+                                    frameList.Clear();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("SUMA SIĘ NIE ZGADZA, PONOWNE ZAPYTANIE O RAMKĘ");
+                                    port.Write(new byte[] { 0x15 }, 0, 1);
+                                    frameList.Clear();
+                                }
+
+                                frameStatus = 0;
+                                frameDataLenght = 0;
+                                commandCode = 0;
+                                byteList.Clear();
+                                sumControll = 0;
+                                checkSumControll = 0;
+
+                            }
+
+                            break;
+                    }
+
+                }
+
+            }
+
+        }
+
+        private void layerButtonClick(object sender, RoutedEventArgs e)
+        {
+            List<string> frameList = new List<string>();
+            frameList.Add("0x02");
+            frameList.Add("0x01");
+            frameList.Add("0xFF");
+            frameList.Add("0x3a");
+            frameList.Add("0x5c");
+            frameList.Add("0x00");
+            reciveTextBox.Dispatcher.Invoke(() => reciveTextBox.Text += String.Join(" ", frameList));
+            reciveTextBox.Dispatcher.Invoke(() => reciveTextBox.AppendText(Environment.NewLine));
         }
     }
 }
