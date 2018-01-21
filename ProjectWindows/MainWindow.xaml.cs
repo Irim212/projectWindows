@@ -105,6 +105,7 @@ namespace ProjectWindows
             int commandCode = 0;
             List<int> byteList = new List<int>();
             List<string> frameList = new List<string>();
+            List<string> sendList = new List<string>();
             int sumControll = 0;
             int a = 0;
             int checkSumControll = 0;
@@ -131,6 +132,16 @@ namespace ProjectWindows
                                 if(sendByteQueue.TryDequeue(out sendByteQueue1))
                                 {
                                     port.Write(sendByteQueue1, 0, sendByteQueue.Count);
+                                    
+                                    foreach(byte dataByte in sendByteQueue1)
+                                        {
+                                        sendList.Add(dataByte.ToString("X2"));
+                                        }
+
+                                    reciveTextBox.Dispatcher.Invoke(() => reciveTextBox.Text = String.Join(" ", sendList));
+                                    reciveTextBox.Dispatcher.Invoke(() => reciveTextBox.AppendText(Environment.NewLine));
+                                    sendList.Clear();
+
                                     port.RtsEnable = false;
                                 }
                             }
@@ -177,15 +188,20 @@ namespace ProjectWindows
                                 if (checkSumControll == sumControll)
                                 {
                                     Console.WriteLine("ZGADZA SIĘ SUMA KONTROLNA");
-                                    port.Write(new byte[] { 0x06 }, 0, 1);
                                     reciveTextBox.Dispatcher.Invoke(() => reciveTextBox.Text = String.Join(" ", frameList));
                                     reciveTextBox.Dispatcher.Invoke(() => reciveTextBox.AppendText(Environment.NewLine));
+
+                                    port.Write(new byte[] { 0x06 }, 0, 1);
+                                    sendTextBox.Dispatcher.Invoke(() => sendTextBox.Text = String.Join(" ", "0x06"));
+                                    sendTextBox.Dispatcher.Invoke(() => sendTextBox.AppendText(Environment.NewLine));
                                     frameList.Clear();
                                 }
                                 else
                                 {
                                     Console.WriteLine("SUMA SIĘ NIE ZGADZA, PONOWNE ZAPYTANIE O RAMKĘ");
                                     port.Write(new byte[] { 0x15 }, 0, 1);
+                                    sendTextBox.Dispatcher.Invoke(() => sendTextBox.Text = String.Join(" ", "0x15"));
+                                    sendTextBox.Dispatcher.Invoke(() => sendTextBox.AppendText(Environment.NewLine));
                                     frameList.Clear();
                                 }
 
@@ -206,7 +222,7 @@ namespace ProjectWindows
             }
 
         }
-
+        /*
         private void layerButtonClick(object sender, RoutedEventArgs e)
         {
             List<string> frameList = new List<string>();
@@ -218,6 +234,6 @@ namespace ProjectWindows
             frameList.Add("0x00");
             reciveTextBox.Dispatcher.Invoke(() => reciveTextBox.Text += String.Join(" ", frameList));
             reciveTextBox.Dispatcher.Invoke(() => reciveTextBox.AppendText(Environment.NewLine));
-        }
+        }*/
     }
 }
