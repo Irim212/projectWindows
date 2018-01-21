@@ -92,7 +92,6 @@ namespace ProjectWindows
                 {
                     getByteQueue.Enqueue((byte)port.ReadByte());
                 }
-                
             }
             port.Close();
         }
