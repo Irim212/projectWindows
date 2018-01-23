@@ -68,6 +68,8 @@ namespace ProjectWindows
         {
             port.RtsEnable = true;
 
+            //port.Write(new byte[] {0x02, 0x00, 0x3C, 0x3C, 0x00}, 0 , 5);
+
             sendByteQueue.Enqueue(new byte[] { 0x02, 0x00, 0x3C, 0x3C, 0x00 });
 
         }
@@ -174,13 +176,13 @@ namespace ProjectWindows
                         case 4:
                             if (a == 0)
                             {
-                                sumControll |= (bajt << 8);
+                                sumControll |= bajt;
                                 frameList.Add(bajt.ToString("X2"));
                                 a++;
                             }
                             else if (a == 1)
                             {
-                                sumControll |= bajt;
+                                sumControll |= (bajt << 8);;
                                 a = 0;
                                 frameList.Add(bajt.ToString("X2"));
 
